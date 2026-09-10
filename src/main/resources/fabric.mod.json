@@ -1,12 +1,10 @@
 {
   "schemaVersion": 1,
   "id": "pojavxoptimizer",
-  "version": "1.0.0",
+  "version": "${version}",
   "name": "PojavXOptimizer",
   "description": "made for pojavers by pojaver",
-  "authors": [
-    "goodboysoul"
-  ],
+  "authors": ["goodboysoul"],
   "contact": {
     "homepage": "https://github.com/kaoakwkwkwkwkwkwkaoakakaakak-collab/PojavXOptimizer",
     "sources": "https://github.com/kaoakwkwkwkwkwkwkaoakakaakak-collab/PojavXOptimizer",
@@ -15,31 +13,19 @@
   "license": "MIT",
   "environment": "client",
   "entrypoints": {
-    "client": [
-      "com.goodboysoul.pojavxoptimizer.PojavXOptimizer"
-    ]
+    "client": ["com.goodboysoul.pojavxoptimizer.PojavXOptimizer"]
   },
-  "mixins": [
-    "pojavxoptimizer.mixins.json"
-  ],
+  "mixins": ["pojavxoptimizer.mixins.json"],
   "depends": {
     "fabricloader": ">=0.16.3",
     "minecraft": "1.21.1",
     "java": ">=21"
   },
-  "breaks": {
-    "sodium": "*"
-  },
+  "breaks": { "sodium": "*" },
   "custom": {
     "pojavxoptimizer": {
       "targetPlatform": "PojavLauncher",
-      "renderers": [
-        "MobileGlues",
-        "Krypton",
-        "NG-GL4ES",
-        "LTW",
-        "HolyGL4ES"
-      ]
+      "renderers": ["MobileGlues", "Krypton", "NG-GL4ES", "LTW", "HolyGL4ES"]
     }
   }
 }

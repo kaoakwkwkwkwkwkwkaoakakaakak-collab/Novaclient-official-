@@ -1,13 +1,13 @@
 {
   "required": true,
-  "package": "com.goodboysoul.pojavxoptimizer.mixin",
+  "package": "com.goodboysoul.pojavxoptimizer.mixin.client",
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
   "client": [
-    "client.LevelRendererMixin",
-    "client.SectionOcclusionGraphMixin",
-    "client.SectionBufferBuilderPoolMixin",
-    "client.SectionRenderDispatcherMixin"
+    "MinecraftMixin",
+    "LevelRendererMixin",
+    "ParticleEngineMixin",
+    "EntityRenderDispatcherMixin"
   ],
   "injectors": {
     "defaultRequire": 0,
