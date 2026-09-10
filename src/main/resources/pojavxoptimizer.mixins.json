@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "com.goodboysoul.pojavxoptimizer.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8",
+  "client": [
+    "client.LevelRendererMixin",
+    "client.SectionOcclusionGraphMixin",
+    "client.SectionBufferBuilderPoolMixin",
+    "client.SectionRenderDispatcherMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0,
+    "maxShiftBy": 8
+  }
+}
