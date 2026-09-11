@@ -31,6 +31,13 @@ public final class RendererDetector {
             return fromGlString;
         }
 
+        RendererBackend fromEnvironment = readEnvironment();
+        if (fromEnvironment != null) {
+            PJO.info("Renderer detected from launcher environment: {}",
+                    fromEnvironment.displayName());
+            return fromEnvironment;
+        }
+
         RendererBackend fromLibrary = matchNativeLibraryPath();
         if (fromLibrary != null) {
             PJO.info("Renderer detected from native library path: {}", fromLibrary.displayName());
@@ -72,6 +79,7 @@ public final class RendererDetector {
                 "pojavlauncher.renderer",
                 "net.kdt.pojavlaunch.renderer",
                 "mojo.renderer",
+                "org.lwjgl.opengl.libname",
         };
         StringBuilder combined = new StringBuilder();
         for (String key : candidates) {
@@ -84,6 +92,33 @@ public final class RendererDetector {
             return null;
         }
         return matchGlString(combined.toString());
+    }
+
+    private static RendererBackend readEnvironment() {
+        String[] candidates = {
+                "SDL_OPENGL_LIBRARY",
+                "POJAV_RENDERER",
+                "LIBGL_RENDERER",
+        };
+        StringBuilder combined = new StringBuilder();
+        for (String key : candidates) {
+            String value = readEnv(key);
+            if (value != null && !value.isEmpty()) {
+                combined.append(value).append(' ');
+            }
+        }
+        if (combined.length() == 0) {
+            return null;
+        }
+        return matchGlString(combined.toString());
+    }
+
+    private static String readEnv(String key) {
+        try {
+            return System.getenv(key);
+        } catch (RuntimeException unavailable) {
+            return null;
+        }
     }
 
     private static RendererBackend matchGlString(String haystack) {

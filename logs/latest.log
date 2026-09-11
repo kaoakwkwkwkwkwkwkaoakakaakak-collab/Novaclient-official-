@@ -1,0 +1,6 @@
+[11:47:36] [Test worker/INFO]: [PojavXOptimizer] Renderer refined from live GL strings: HolyGL4ES
+[11:47:36] [Test worker/WARN]: [PojavXOptimizer] Could not identify the renderer backend. Every optional optimisation is disabled. Set -Dpojavxoptimizer.renderer=<name> to force one.
+[11:47:36] [Test worker/INFO]: [PojavXOptimizer] Renderer detected from launcher properties: Krypton (NG-GL4ES)
+[11:47:36] [Test worker/INFO]: [PojavXOptimizer] Renderer detected from launcher properties: MobileGlues
+[11:47:36] [Test worker/INFO]: [PojavXOptimizer] Renderer forced by -Dpojavxoptimizer.renderer=LTW
+[11:47:36] [Test worker/INFO]: [PojavXOptimizer] Renderer detected from launcher properties: GL4ES

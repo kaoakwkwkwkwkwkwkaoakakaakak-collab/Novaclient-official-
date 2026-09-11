@@ -79,11 +79,11 @@ public enum DeviceProfile {
         int cores = Runtime.getRuntime().availableProcessors();
 
         DeviceProfile profile;
-        if (heapMb < 1536 || cores <= 2) {
+        if (heapMb < 1024 || cores <= 2) {
             profile = POTATO;
-        } else if (heapMb < 2560 || cores <= 4) {
+        } else if (heapMb < 2560 && cores <= 6) {
             profile = LOW;
-        } else if (heapMb < 3584) {
+        } else if (heapMb < 3584 || cores >= 8) {
             profile = MEDIUM;
         } else if (heapMb < 5120) {
             profile = HIGH;

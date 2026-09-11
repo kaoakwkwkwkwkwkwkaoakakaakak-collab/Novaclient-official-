@@ -3,6 +3,7 @@ package com.goodboysoul.pojavxoptimizer.mixin.client;
 import com.goodboysoul.pojavxoptimizer.PojavXOptimizer;
 import com.goodboysoul.pojavxoptimizer.core.PJO;
 import com.goodboysoul.pojavxoptimizer.core.ViewState;
+import com.goodboysoul.pojavxoptimizer.gui.PjoKeyBindings;
 import com.goodboysoul.pojavxoptimizer.gui.PjoOptionsScreen;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -45,7 +46,7 @@ public abstract class MinecraftMixin {
 
     @Unique
     private void pjo$handleSettingsKey(Minecraft self) {
-        KeyMapping binding = OptionsMixin.pjo$keyMapping();
+        KeyMapping binding = PjoKeyBindings.optionsKey();
         if (binding == null || self.screen != null) {
             return;
         }
