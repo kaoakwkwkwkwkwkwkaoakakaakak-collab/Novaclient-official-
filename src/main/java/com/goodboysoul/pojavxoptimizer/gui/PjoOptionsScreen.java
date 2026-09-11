@@ -89,6 +89,8 @@ public final class PjoOptionsScreen extends Screen {
         int y = startY;
         switch (page) {
             case MAIN -> {
+                y = addToggle(y, "Maximum FPS (uncapped, drains battery)",
+                        () -> config.maxFpsMode(), value -> config.maxFpsMode(value));
                 y = addToggle(y, "Battery saver (idle fps cap)",
                         () -> config.batterySaver(), value -> config.batterySaver(value));
                 y = addToggle(y, "Thermal governor",

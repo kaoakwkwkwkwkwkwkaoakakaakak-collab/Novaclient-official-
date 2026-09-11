@@ -48,6 +48,11 @@ public final class FramePacer {
         lastYaw = yaw;
         lastPitch = pitch;
 
+        if (config.maxFpsMode()) {
+            effectiveCap = PjoConfig.UNLIMITED_FPS;
+            return effectiveCap;
+        }
+
         if (!config.batterySaver()) {
             effectiveCap = refreshRate;
             return effectiveCap;
@@ -56,9 +61,9 @@ public final class FramePacer {
         int cap = refreshRate;
 
         if (guiOpen) {
-            cap = Math.min(cap, config.guiFpsCap());
+            cap = Math.min(cap, config.effectiveGuiFpsCap());
         } else if (isIdle()) {
-            cap = Math.min(cap, config.idleFpsCap());
+            cap = Math.min(cap, config.effectiveIdleFpsCap());
         }
 
         cap = Math.min(cap, thermal.suggestedFpsCap(refreshRate));

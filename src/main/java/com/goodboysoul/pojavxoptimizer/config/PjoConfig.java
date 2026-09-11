@@ -50,6 +50,7 @@ public final class PjoConfig {
     private int idleFpsCap = 20;
     private int guiFpsCap = 15;
     private boolean capToRefreshRate = true;
+    private boolean maxFpsMode = false;
 
     private boolean inputSmoothing = false;
     private double inputSmoothingStrength = 0.35;
@@ -145,6 +146,11 @@ public final class PjoConfig {
         this.heapPressureThreshold = newProfile.heapPressureThreshold();
         this.aggressiveMeshEviction = newProfile.aggressiveMemoryReclaim();
         this.thermalGovernor = newProfile.thermalGovernorEnabled();
+        if (maxFpsMode) {
+            this.batterySaver = false;
+            this.capToRefreshRate = false;
+            this.thermalGovernor = false;
+        }
     }
 
     private void clamp() {
@@ -159,8 +165,8 @@ public final class PjoConfig {
         buildTimeBudgetMs = clampDouble(buildTimeBudgetMs, 1.0, 50.0);
         thermalBackoffThreshold = clampDouble(thermalBackoffThreshold, 0.10, 0.80);
         thermalRecoverSeconds = clampInt(thermalRecoverSeconds, 5, 300);
-        idleFpsCap = clampInt(idleFpsCap, 5, 120);
-        guiFpsCap = clampInt(guiFpsCap, 5, 120);
+        idleFpsCap = clampInt(idleFpsCap, 5, UNLIMITED_FPS);
+        guiFpsCap = clampInt(guiFpsCap, 5, UNLIMITED_FPS);
         inputSmoothingStrength = clampDouble(inputSmoothingStrength, 0.0, 1.0);
         entityCullDistance = clampDouble(entityCullDistance, 8.0, 256.0);
         entityCullPixelSize = clampDouble(entityCullPixelSize, 0.0, 64.0);
@@ -268,6 +274,27 @@ public final class PjoConfig {
 
     public boolean capToRefreshRate() { return capToRefreshRate; }
     public void capToRefreshRate(boolean value) { this.capToRefreshRate = value; }
+
+    public static final int UNLIMITED_FPS = 260;
+
+    public boolean maxFpsMode() { return maxFpsMode; }
+
+    public void maxFpsMode(boolean value) {
+        this.maxFpsMode = value;
+        if (value) {
+            this.batterySaver = false;
+            this.capToRefreshRate = false;
+            this.thermalGovernor = false;
+        }
+    }
+
+    public int effectiveIdleFpsCap() {
+        return maxFpsMode ? UNLIMITED_FPS : idleFpsCap;
+    }
+
+    public int effectiveGuiFpsCap() {
+        return maxFpsMode ? UNLIMITED_FPS : guiFpsCap;
+    }
 
     public boolean inputSmoothing() { return inputSmoothing; }
     public void inputSmoothing(boolean value) { this.inputSmoothing = value; }

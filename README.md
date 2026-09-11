@@ -7,7 +7,7 @@ PojavXOptimizer is a performance mod for Minecraft 1.21.1 on Fabric, built only 
 ## Install
 
 1. Install Fabric Loader for Minecraft 1.21.1 in Pojav Launcher
-2. Put `pojavxoptimizer-1.0.2.jar` in `.minecraft/mods`
+2. Put `pojavxoptimizer-1.0.3.jar` in `.minecraft/mods`
 3. Launch
 
 | | |
