@@ -51,6 +51,16 @@ public final class PjoConfig {
     private boolean packedVertexFormat = true;
     private boolean shaderPrecompile = true;
 
+    /**
+     * Uploads section meshes in the packed 16-byte format instead of vanilla's 32-byte one.
+     *
+     * <p>Default OFF. The compaction itself is unit-tested and provably correct, but the custom
+     * vertex format and shader that consume it have not been run on a real device. Shipping it
+     * enabled would mean a black screen or corrupted colours for anyone who installs without
+     * knowing that. It turns on once it has been verified on each renderer.
+     */
+    private boolean packedMeshUpload = false;
+
     // Memory
     private boolean heapGuard = true;
     private float heapPressureThreshold = 0.82f;
@@ -279,6 +289,9 @@ public final class PjoConfig {
 
     public boolean packedVertexFormat() { return packedVertexFormat; }
     public void packedVertexFormat(boolean value) { this.packedVertexFormat = value; }
+
+    public boolean packedMeshUpload() { return packedMeshUpload; }
+    public void packedMeshUpload(boolean value) { this.packedMeshUpload = value; }
 
     public boolean shaderPrecompile() { return shaderPrecompile; }
     public void shaderPrecompile(boolean value) { this.shaderPrecompile = value; }
