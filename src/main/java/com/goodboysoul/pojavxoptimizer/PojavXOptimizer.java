@@ -2,6 +2,7 @@ package com.goodboysoul.pojavxoptimizer;
 
 import com.goodboysoul.pojavxoptimizer.config.PjoConfig;
 import com.goodboysoul.pojavxoptimizer.core.PJO;
+import com.goodboysoul.pojavxoptimizer.gui.DebugHud;
 import com.goodboysoul.pojavxoptimizer.module.battery.FramePacer;
 import com.goodboysoul.pojavxoptimizer.module.chunk.BuildBudget;
 import com.goodboysoul.pojavxoptimizer.module.chunk.ChunkPrioritizer;
@@ -56,6 +57,7 @@ public final class PojavXOptimizer implements ClientModInitializer {
     private InputSmoother inputSmoother;
     private EntityCullPolicy entityCullPolicy;
     private ParticleBudget particleBudget;
+    private DebugHud debugHud;
 
     private boolean ready;
 
@@ -121,6 +123,7 @@ public final class PojavXOptimizer implements ClientModInitializer {
         this.inputSmoother = new InputSmoother(config);
         this.entityCullPolicy = new EntityCullPolicy(config);
         this.particleBudget = new ParticleBudget(config);
+        this.debugHud = new DebugHud();
 
         try {
             this.heapGuard = new HeapGuard(config);
@@ -171,6 +174,7 @@ public final class PojavXOptimizer implements ClientModInitializer {
     public InputSmoother inputSmoother() { return inputSmoother; }
     public EntityCullPolicy entityCullPolicy() { return entityCullPolicy; }
     public ParticleBudget particleBudget() { return particleBudget; }
+    public DebugHud debugHud() { return debugHud; }
     public Path configDir() { return configDir; }
 
     /**

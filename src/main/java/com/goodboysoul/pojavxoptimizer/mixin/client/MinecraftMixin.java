@@ -3,6 +3,8 @@ package com.goodboysoul.pojavxoptimizer.mixin.client;
 import com.goodboysoul.pojavxoptimizer.PojavXOptimizer;
 import com.goodboysoul.pojavxoptimizer.core.PJO;
 import com.goodboysoul.pojavxoptimizer.core.ViewState;
+import com.goodboysoul.pojavxoptimizer.gui.PjoOptionsScreen;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -59,6 +61,24 @@ public abstract class MinecraftMixin {
     @Unique
     private boolean pjo$updateErrorLogged;
 
+    /**
+     * Opens the settings screen when the mod's keybind fires.
+     *
+     * <p>Deliberately ignored while another screen is open, so that pressing the key inside a menu
+     * cannot stack a second screen on top of the first and leave the user unable to get back.
+     */
+    @Unique
+    private void pjo$handleSettingsKey(Minecraft self) {
+        KeyMapping binding = OptionsMixin.pjo$keyMapping();
+        if (binding == null || self.screen != null) {
+            return;
+        }
+        while (binding.consumeClick()) {
+            self.setScreen(new PjoOptionsScreen(self.screen));
+            return;
+        }
+    }
+
     @Unique
     private long pjo$lastFrameNanos;
 
@@ -111,5 +131,7 @@ public abstract class MinecraftMixin {
 
         mod.entityCullPolicy().setThermal(mod.thermalGovernor().pressure());
         mod.particleBudget().setThermal(mod.thermalGovernor().pressure());
+
+        pjo$handleSettingsKey(self);
     }
 }
