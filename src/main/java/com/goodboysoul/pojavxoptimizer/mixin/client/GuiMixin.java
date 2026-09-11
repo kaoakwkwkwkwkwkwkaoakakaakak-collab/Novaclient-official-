@@ -12,24 +12,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/**
- * Draws the debug overlay on top of the vanilla HUD.
- *
- * <p>Injected at the tail of {@code Gui.render} so the overlay sits above everything vanilla drew,
- * and adds no instructions of its own beyond a guarded call. A mod that replaces the HUD entirely
- * simply never enters this method, which degrades to "no overlay" rather than to a crash.
- *
- * <p>Render failures are caught and logged once. A debug overlay that can take the HUD down would be
- * worse than having no overlay, and this code path only runs when the user has explicitly asked for
- * it.
- */
 @Mixin(Gui.class)
 public abstract class GuiMixin {
 
     @Shadow
     public net.minecraft.client.gui.Font getFont() {
-        // Shadowed to reach the vanilla font renderer. Mixin discards this body at merge time and
-        // binds the call to Gui's real implementation, so it is never executed.
+
         throw new AssertionError("mixin stub");
     }
 

@@ -9,17 +9,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/**
- * Applies the particle population budget.
- *
- * <p>Two injections, both additive. The one on {@code createParticle} refuses new particles before
- * they are allocated, which is where the saving actually is: a particle that is never constructed
- * costs no allocation, no tick, and no draw call. The one on {@code add} maintains the live count.
- *
- * <p>Refusing at creation rather than culling from the live set matters. Removing an existing
- * particle mid-animation is visible as a particle winking out; declining to spawn a new one is not,
- * because nothing was ever on screen to miss.
- */
 @Mixin(ParticleEngine.class)
 public abstract class ParticleEngineMixin {
 

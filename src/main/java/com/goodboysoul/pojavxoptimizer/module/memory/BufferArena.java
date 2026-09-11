@@ -7,24 +7,9 @@ import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-/**
- * Pools off-heap scratch buffers used while building section meshes.
- *
- * <p>Vanilla allocates fresh heap-backed builders for every rebuild. On a phone that is doubly
- * expensive: the allocation is large enough to be humongous for most collectors, and it happens on
- * worker threads at exactly the moment the render thread is also allocating, which is how a chunk
- * load turns into a visible pause.
- *
- * <p>Pooled direct buffers avoid both problems. They sit outside the heap entirely, so the garbage
- * collector never sees them and their memory is not counted against the limit that triggers the
- * Android low-memory killer. They are reused, so steady-state allocation drops to zero.
- *
- * <p>The trade is that pooled memory is not returned to the OS while the pool holds it, which is why
- * {@link #trimTo(int)} exists and why {@link HeapGuard} is allowed to call it.
- */
 public final class BufferArena implements HeapGuard.EvictionListener {
 
-    private static final int DEFAULT_SEGMENT_BYTES = 1 << 16; // 64 KiB
+    private static final int DEFAULT_SEGMENT_BYTES = 1 << 16;
 
     private final Deque<ByteBuffer> freeSegments = new ArrayDeque<>();
     private final int segmentBytes;
@@ -50,10 +35,6 @@ public final class BufferArena implements HeapGuard.EvictionListener {
         }
     }
 
-    /**
-     * Takes a buffer of at least {@code minimumBytes}. Larger requests get a dedicated buffer that
-     * is not pooled, since retaining a one-off huge segment would defeat the point.
-     */
     public synchronized ByteBuffer borrow(int minimumBytes) {
         borrowCount++;
         if (minimumBytes <= segmentBytes) {
@@ -72,10 +53,6 @@ public final class BufferArena implements HeapGuard.EvictionListener {
         return ByteBuffer.allocateDirect(minimumBytes);
     }
 
-    /**
-     * Returns a buffer to the pool. Buffers that are not the pooled size, or that would take the
-     * pool over its limit, are dropped so the direct memory can be reclaimed.
-     */
     public synchronized void giveBack(ByteBuffer buffer) {
         if (buffer == null || !buffer.isDirect() || buffer.capacity() != segmentBytes) {
             return;
@@ -88,11 +65,6 @@ public final class BufferArena implements HeapGuard.EvictionListener {
         freeSegments.addLast(buffer);
     }
 
-    /**
-     * Releases pooled segments, keeping at most {@code retain}. Invoked by {@link HeapGuard} when
-     * the heap is tight: direct buffers are outside the heap, but the pages behind them still count
-     * against the process total that Android watches.
-     */
     @Override
     public synchronized void onMemoryPressure(double urgency) {
         int retain = urgency >= 0.75 ? 0 : Math.max(1, maxRetainedSegments / 4);
@@ -132,7 +104,6 @@ public final class BufferArena implements HeapGuard.EvictionListener {
         return borrowCount;
     }
 
-    /** Fraction of borrows served from the pool. A low value means the pool is undersized. */
     public double reuseRate() {
         return borrowCount == 0 ? 0.0 : (double) reuseCount / (double) borrowCount;
     }

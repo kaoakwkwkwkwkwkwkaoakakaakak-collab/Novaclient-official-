@@ -12,16 +12,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/**
- * Adds distance and projected-size tests to the existing entity visibility decision.
- *
- * <p>Vanilla's {@code shouldRender} already handles frustum culling correctly, so this does not
- * replace it — it only adds a refusal on top. When PojavXOptimizer is not ready, not configured for
- * entity culling, or the entity is the one the player is riding, the original result stands.
- *
- * <p>The rider exception is not cosmetic. Culling the entity you are sitting on removes your own
- * mount from the world, which reads as a serious bug rather than as an optimisation.
- */
 @Mixin(EntityRenderDispatcher.class)
 public abstract class EntityRenderDispatcherMixin {
 
@@ -71,8 +61,7 @@ public abstract class EntityRenderDispatcherMixin {
             AABB box = entity.getBoundingBox();
             return box == null ? 0.6 : box.getXsize();
         } catch (RuntimeException boxUnavailable) {
-            // Some entity types override bounding-box access and can throw before they are fully
-            // initialised. A default width keeps culling conservative instead of crashing.
+
             return 0.6;
         }
     }

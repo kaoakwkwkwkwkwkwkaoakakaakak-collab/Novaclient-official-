@@ -13,23 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
-/**
- * The on-disk settings for PojavXOptimizer, stored as {@code config/pojavxoptimizer.json}.
- *
- * <p>Three behaviours here are deliberate and matter more than any individual setting:
- *
- * <ul>
- *   <li><b>Loading never throws.</b> A malformed file is logged, quarantined to
- *       {@code .corrupt}, and replaced with defaults. A performance mod that refuses to start the
- *       game because of its own config file is worse than no mod at all, and on mobile the user has
- *       no easy way to inspect a stack trace.</li>
- *   <li><b>Writing is atomic.</b> Settings are written to a temporary file and then moved into
- *       place. Android kills processes without warning, and a half-written JSON file is exactly the
- *       failure that the first rule then has to recover from.</li>
- *   <li><b>Schema version is recorded.</b> An older client reading a newer file, or the reverse,
- *       falls back to defaults rather than silently misinterpreting a field whose meaning changed.</li>
- * </ul>
- */
 public final class PjoConfig {
 
     public static final int SCHEMA_VERSION = 1;
@@ -37,12 +20,9 @@ public final class PjoConfig {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    // ---- persisted state -------------------------------------------------
-
     private int schemaVersion = SCHEMA_VERSION;
     private DeviceProfile profile = DeviceProfile.LOW;
 
-    // Rendering
     private boolean dynamicResolution = true;
     private float resolutionScaleMin = 0.60f;
     private float resolutionScaleMax = 1.00f;
@@ -51,61 +31,40 @@ public final class PjoConfig {
     private boolean packedVertexFormat = true;
     private boolean shaderPrecompile = true;
 
-    /**
-     * Uploads section meshes in the packed 16-byte format instead of vanilla's 32-byte one.
-     *
-     * <p>Default OFF. The compaction itself is unit-tested and provably correct, but the custom
-     * vertex format and shader that consume it have not been run on a real device. Shipping it
-     * enabled would mean a black screen or corrupted colours for anyone who installs without
-     * knowing that. It turns on once it has been verified on each renderer.
-     */
     private boolean packedMeshUpload = false;
 
-    // Memory
     private boolean heapGuard = true;
     private float heapPressureThreshold = 0.82f;
     private boolean offHeapMeshes = true;
     private boolean aggressiveMeshEviction = true;
 
-    // Chunk building
-    private int buildThreads = 0; // 0 = derive from the device profile
+    private int buildThreads = 0;
     private double buildTimeBudgetMs = 6.0;
     private boolean viewWeightedChunkPriority = true;
 
-    // Thermal
     private boolean thermalGovernor = true;
     private double thermalBackoffThreshold = 0.30;
     private int thermalRecoverSeconds = 20;
 
-    // Battery
     private boolean batterySaver = true;
     private int idleFpsCap = 20;
     private int guiFpsCap = 15;
     private boolean capToRefreshRate = true;
 
-    // Input
     private boolean inputSmoothing = false;
     private double inputSmoothingStrength = 0.35;
 
-    // Culling
     private boolean entityCulling = true;
     private double entityCullDistance = 64.0;
     private double entityCullPixelSize = 3.0;
     private boolean particleBudgeting = true;
     private int particleBudget = 400;
 
-    // Diagnostics
     private boolean debugOverlay = false;
 
     private PjoConfig() {
     }
 
-    // ---- lifecycle -------------------------------------------------------
-
-    /**
-     * Reads the config, or produces profile-derived defaults when it is absent, unreadable, or from
-     * an incompatible schema. Always returns a usable object.
-     */
     public static PjoConfig load(Path configDir) {
         Path file = configDir.resolve(FILE_NAME);
         DeviceProfile profile = DeviceProfile.detect();
@@ -145,10 +104,6 @@ public final class PjoConfig {
         return config;
     }
 
-    /**
-     * Writes settings atomically. Failure is logged and swallowed: losing a settings change is
-     * recoverable, but propagating an IOException from a config save into the render loop is not.
-     */
     public void save(Path configDir) {
         Path file = configDir.resolve(FILE_NAME);
         Path temp = configDir.resolve(FILE_NAME + ".tmp");
@@ -159,8 +114,7 @@ public final class PjoConfig {
             Files.move(temp, file, StandardCopyOption.REPLACE_EXISTING,
                     StandardCopyOption.ATOMIC_MOVE);
         } catch (IOException atomicFailed) {
-            // ATOMIC_MOVE is unsupported on some Android filesystems; retry without it before
-            // giving up, since a non-atomic write is still better than no write at all.
+
             try {
                 Files.writeString(file, GSON.toJson(this), StandardCharsets.UTF_8);
                 Files.deleteIfExists(temp);
@@ -183,10 +137,6 @@ public final class PjoConfig {
         return fresh;
     }
 
-    /**
-     * Copies profile defaults into the settings. Used both for a first run and when the user asks
-     * to reset, so the two paths cannot drift apart.
-     */
     public void applyProfile(DeviceProfile newProfile) {
         this.profile = newProfile;
         this.buildThreads = newProfile.buildThreads();
@@ -197,11 +147,6 @@ public final class PjoConfig {
         this.thermalGovernor = newProfile.thermalGovernorEnabled();
     }
 
-    /**
-     * Constrains every value to a range that cannot break the game. A user editing the JSON by hand
-     * on a phone keyboard is expected to produce nonsense eventually, and nonsense here means a
-     * black screen rather than a validation error.
-     */
     private void clamp() {
         resolutionScaleMin = clampFloat(resolutionScaleMin, 0.25f, 1.0f);
         resolutionScaleMax = clampFloat(resolutionScaleMax, 0.25f, 1.0f);
@@ -237,23 +182,12 @@ public final class PjoConfig {
         return Math.max(min, Math.min(max, value));
     }
 
-    // ---- derived decisions -----------------------------------------------
-
-    /**
-     * Resolves the thread count for chunk building, falling back to the profile when the user left
-     * it on auto. Never returns 0, and never exceeds physical cores minus one so that the render
-     * thread always has a core available.
-     */
     public int resolveBuildThreads() {
         int cores = Runtime.getRuntime().availableProcessors();
         int requested = buildThreads > 0 ? buildThreads : profile.buildThreads();
         return Math.max(1, Math.min(requested, Math.max(1, cores - 1)));
     }
 
-    /**
-     * Instanced drawing needs both user consent and hardware support. Checking only the config
-     * would emit instanced draw calls into a backend that cannot execute them.
-     */
     public boolean useInstancedDrawing(GpuCaps caps) {
         return instancedSectionDrawing && caps.supportsInstancing();
     }
@@ -262,12 +196,9 @@ public final class PjoConfig {
         return packedVertexFormat && caps.canUsePackedVertexFormat();
     }
 
-    /** Render distance cap for the current profile, honoured even if the user asks for more. */
     public int renderDistanceCap() {
         return profile.renderDistanceCap();
     }
-
-    // ---- accessors -------------------------------------------------------
 
     public int schemaVersion() { return schemaVersion; }
     public DeviceProfile profile() { return profile; }

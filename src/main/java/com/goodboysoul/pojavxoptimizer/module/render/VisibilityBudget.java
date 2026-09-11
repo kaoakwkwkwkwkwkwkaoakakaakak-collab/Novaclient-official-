@@ -5,20 +5,6 @@ import com.goodboysoul.pojavxoptimizer.core.Debug;
 import com.goodboysoul.pojavxoptimizer.core.PJO;
 import com.goodboysoul.pojavxoptimizer.module.thermal.ThermalGovernor;
 
-/**
- * Caps how many sections may be in the visible set, and how fast that set may change.
- *
- * <p>The visible set is the single number that most directly drives mobile frame time, because every
- * member costs at least one draw call and, through a translation layer, every draw call costs real
- * microseconds of CPU time translating the call rather than doing graphics work. At render distance
- * 16 a flat landscape can easily present several thousand sections, most of them a couple of pixels
- * wide.
- *
- * <p>Capping alone would cause popping at the cap boundary, so the cap moves: it ratchets down
- * quickly when frame time is bad and creeps back up slowly when there is headroom. The asymmetry is
- * the same reasoning the thermal governor uses — a slow recovery cannot oscillate, a fast drop
- * recovers the frame rate immediately.
- */
 public final class VisibilityBudget {
 
     private static final int RATCHET_STEP = 64;
@@ -39,15 +25,6 @@ public final class VisibilityBudget {
         this.currentCap = hardCap;
     }
 
-    /**
-     * Re-evaluates the cap.
-     *
-     * @param visibleSections how many sections were drawn last frame
-     * @param frameMs         last frame time in milliseconds
-     * @param targetFrameMs   the frame time we are aiming for, usually 1000 / refresh rate
-     * @param thermal         current thermal pressure
-     * @return the cap to apply this frame
-     */
     public int update(int visibleSections, double frameMs, double targetFrameMs,
                       ThermalGovernor.Pressure thermal) {
         lastVisibleSections = visibleSections;
@@ -83,10 +60,6 @@ public final class VisibilityBudget {
         return currentCap;
     }
 
-    /**
-     * Whether a candidate section should be admitted, given its distance rank within the current
-     * frame's candidates.
-     */
     public boolean admit(int rank) {
         return rank < currentCap;
     }
@@ -108,7 +81,6 @@ public final class VisibilityBudget {
         return lastVisibleSections;
     }
 
-    /** True when the cap, not the frustum, is what is limiting the visible set. */
     public boolean isCapEngaged() {
         return capEngaged;
     }

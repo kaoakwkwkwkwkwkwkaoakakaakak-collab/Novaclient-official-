@@ -3,23 +3,6 @@ package com.goodboysoul.pojavxoptimizer.platform;
 import com.goodboysoul.pojavxoptimizer.core.Debug;
 import com.goodboysoul.pojavxoptimizer.core.PJO;
 
-/**
- * Identifies the translation layer in use.
- *
- * <p>Detection is deliberately layered and ordered cheapest-and-most-reliable first:
- * <ol>
- *   <li>an explicit user override system property, because when detection is wrong the user needs a
- *       way to force the answer without waiting for a fix;</li>
- *   <li>launcher-provided system properties, which are authoritative when present;</li>
- *   <li>the {@code GL_RENDERER} / {@code GL_VENDOR} strings, which every backend sets differently
- *       and which are the only signal available on builds that expose nothing else;</li>
- *   <li>known shared-object names on the native library path, as a last resort.</li>
- * </ol>
- *
- * <p>Failing to detect falls through to {@link RendererBackend#UNKNOWN} with every optional
- * optimisation off. A wrong guess that enables a feature the backend cannot honour produces visual
- * corruption, which is far worse than simply not optimising.
- */
 public final class RendererDetector {
 
     private static final String OVERRIDE_PROPERTY = "pojavxoptimizer.renderer";
@@ -59,10 +42,6 @@ public final class RendererDetector {
         return RendererBackend.UNKNOWN;
     }
 
-    /**
-     * Called once GL is current with the real {@code GL_RENDERER} string, which is the most
-     * accurate signal available but is not readable before the window exists.
-     */
     public static RendererBackend refine(String glRenderer, String glVendor) {
         RendererBackend refined = matchGlString(glRenderer + " " + glVendor);
         if (refined != null) {
@@ -112,8 +91,7 @@ public final class RendererDetector {
             return null;
         }
         String needle = haystack.toLowerCase();
-        // Order matters: "mobileglues" contains no substring of the others, but "ng_gl4es" and
-        // "gl4es" overlap, so the more specific names must be tested first.
+
         if (needle.contains("mobileglues") || needle.contains("mobile glues")
                 || needle.contains("mg_")) {
             return RendererBackend.MOBILEGLUES;

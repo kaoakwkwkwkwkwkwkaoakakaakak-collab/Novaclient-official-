@@ -1,13 +1,5 @@
 package com.goodboysoul.pojavxoptimizer.util;
 
-/**
- * Exponential moving average.
- *
- * <p>Cheaper and more responsive than a windowed mean for signals that drift slowly, which is
- * exactly what thermal pressure and sustained frame time are. {@code alpha} near 0 is sluggish and
- * smooth; near 1 is twitchy. The thermal governor deliberately uses a low alpha so that a single
- * dropped frame from a garbage collection cannot trigger a quality downgrade.
- */
 public final class Ema {
 
     private final double alpha;

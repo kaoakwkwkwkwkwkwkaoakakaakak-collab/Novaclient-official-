@@ -13,26 +13,12 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
-/**
- * The in-game settings screen.
- *
- * <p>Built on vanilla {@link Screen} and {@link Button} rather than on a config-library or ModMenu
- * integration. That choice is the same one that governs the rest of the mod: every dependency is
- * something the user must install correctly, and on a phone a missing library looks exactly like
- * "the game will not start". A hand-rolled screen is more code, but it is code that cannot fail
- * because something else is absent.
- *
- * <p>Settings are grouped so that the ones worth touching are on the first page. A beginner should be
- * able to leave everything alone; the profile picked at startup is already tuned for the device. The
- * pages exist for the user who wants to push past that.
- */
 public final class PjoOptionsScreen extends Screen {
 
     private static final int BUTTON_WIDTH = 220;
     private static final int BUTTON_HEIGHT = 20;
     private static final int ROW_GAP = 6;
 
-    /** Page identifiers, so navigation does not depend on list ordering. */
     private enum Page {
         MAIN("Performance"),
         VISUAL("Visual"),
@@ -151,7 +137,6 @@ public final class PjoOptionsScreen extends Screen {
         }
     }
 
-    /** Adds an ON/OFF row and returns the y position for the next row. */
     private int addToggle(int y, String label, BooleanSupplier getter, Consumer<Boolean> setter) {
         Component text = Component.literal(label + ": " + (getter.getAsBoolean() ? "ON" : "OFF"));
         addRenderableWidget(Button.builder(text, button -> {
@@ -162,13 +147,6 @@ public final class PjoOptionsScreen extends Screen {
         return y + BUTTON_HEIGHT + ROW_GAP;
     }
 
-    /**
-     * Adds a row that cycles through a fixed set of values.
-     *
-     * <p>Cycling rather than a slider or a text field: on a touchscreen a slider needs two fingers
-     * and a steady hand, and a text field means a keyboard. One tap is the only control that is
-     * genuinely comfortable on a phone, which is why every option here uses it.
-     */
     private int addCycle(int y, String label, int current, int[] options,
                          java.util.function.IntConsumer setter) {
         Component text = Component.literal(label + ": " + current);
@@ -187,7 +165,6 @@ public final class PjoOptionsScreen extends Screen {
         return y + BUTTON_HEIGHT + ROW_GAP;
     }
 
-    /** Clears and rebuilds widgets so every label reflects the current values. */
     private void rebuild() {
         clearWidgets();
         init(this.minecraft, this.width, this.height);
@@ -219,26 +196,12 @@ public final class PjoOptionsScreen extends Screen {
         }
     }
 
-    /**
-     * Writes settings to disk.
-     *
-     * <p>Called once on the way out rather than on every toggle. Flipping through six options would
-     * otherwise mean six file writes, which is wasted wear on mobile storage for no benefit.
-     */
     private void pjo$save() {
         if (PojavXOptimizer.isReady()) {
             PojavXOptimizer.get().saveConfig();
         }
     }
 
-    /**
-     * Saves and closes, returning to whatever screen was underneath.
-     *
-     * <p>{@code Screen} exposes no no-arg {@code close()} in 1.21.1, so dismissal goes through
-     * {@code setScreen} directly. Returning to the parent rather than to nothing matters when this
-     * screen was opened from the pause menu: dropping straight to the world would feel like the
-     * pause menu had been dismissed by accident.
-     */
     private void pjo$dismiss() {
         pjo$save();
         if (this.minecraft != null) {
@@ -248,8 +211,7 @@ public final class PjoOptionsScreen extends Screen {
 
     @Override
     public boolean isPauseScreen() {
-        // Pausing would stop the very frame times the mod measures, so the overlay and this screen
-        // stay live in single player.
+
         return false;
     }
 }

@@ -6,29 +6,8 @@ import com.goodboysoul.pojavxoptimizer.core.PJO;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
 
-/**
- * Applies the frame rate cap that {@link FramePacer} computes.
- *
- * <p>This class exists because the cap was previously computed every tick and then discarded. A cap
- * that is never written to the game's own framerate setting does nothing at all — the game keeps
- * rendering as fast as it can — so the whole battery and thermal story depended on this one write
- * actually happening.
- *
- * <p>Two constraints on how it writes:
- *
- * <ul>
- *   <li><b>It never overwrites a limit the user chose.</b> Minecraft uses 260 to mean "unlimited".
- *       If the player has deliberately set 60, imposing our own number would be overriding an
- *       explicit choice, so we only take over while the setting is unlimited.</li>
- *   <li><b>It only writes when the value changes.</b> {@code OptionInstance.set} propagates to
- *       listeners and marks options dirty for saving. Doing that 60 times a second would rewrite
- *       {@code options.txt} constantly, which on mobile storage is exactly the kind of pointless
- *       work this mod is meant to remove.</li>
- * </ul>
- */
 public final class FrameRateLimiter {
 
-    /** Minecraft's sentinel for "no limit", matching {@code Options.UNLIMITED_FRAMERATE_CUTOFF}. */
     private static final int UNLIMITED = 260;
 
     private final PjoConfig config;
@@ -42,12 +21,6 @@ public final class FrameRateLimiter {
         this.config = config;
     }
 
-    /**
-     * Applies the cap for this tick if, and only if, something needs to change.
-     *
-     * @param options the client's options, or {@code null} before the client exists
-     * @param desiredCap the cap {@link FramePacer} wants in force
-     */
     public void apply(Options options, int desiredCap) {
         if (options == null || desiredCap < 5) {
             return;
@@ -65,7 +38,7 @@ public final class FrameRateLimiter {
 
         if (!weAreLimiting) {
             if (current < UNLIMITED) {
-                // The user has their own limit in place. Leave it alone entirely.
+
                 userCapBeforeWeTookOver = current;
                 return;
             }
@@ -91,10 +64,6 @@ public final class FrameRateLimiter {
         }
     }
 
-    /**
-     * Hands the setting back to the player, restoring whatever they had before we took over.
-     * Called when the mod disables itself or the world is unloaded.
-     */
     public void release(OptionInstance<Integer> limit) {
         if (!weAreLimiting || limit == null) {
             return;
@@ -109,14 +78,12 @@ public final class FrameRateLimiter {
         }
     }
 
-    /** Convenience overload for the caller that only has the Options object. */
     public void release(Options options) {
         if (options != null) {
             release(options.framerateLimit());
         }
     }
 
-    /** True while the mod, rather than the player, is controlling the frame rate limit. */
     public boolean isControlling() {
         return weAreLimiting;
     }

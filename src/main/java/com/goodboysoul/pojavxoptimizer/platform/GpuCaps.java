@@ -3,18 +3,6 @@ package com.goodboysoul.pojavxoptimizer.platform;
 import com.goodboysoul.pojavxoptimizer.core.Debug;
 import com.goodboysoul.pojavxoptimizer.core.PJO;
 
-/**
- * A snapshot of what this specific device can actually do, measured rather than assumed.
- *
- * <p>Translation layers advertise capabilities inconsistently: one build claims an extension it
- * implements incorrectly, another implements something it never advertises, and the same GPU family
- * behaves differently across driver revisions. Any optimisation gated on "the backend supports X"
- * therefore has to be gated on a probe that runs on the device, not on the backend's name.
- *
- * <p>The probe is intentionally passive. It records what the context reports and what cheap
- * operations cost; it never allocates large buffers or triggers shader compilation, because doing
- * that during startup would itself be the stutter we are trying to remove.
- */
 public final class GpuCaps {
 
     private final RendererBackend backend;
@@ -45,11 +33,6 @@ public final class GpuCaps {
         this.probeComplete = builder.probeComplete;
     }
 
-    /**
-     * A conservative snapshot taken before GL is current. Everything optional is off, so the mod
-     * still runs correctly if the real probe never happens (for example if the game crashes before
-     * the window is created).
-     */
     public static GpuCaps unknown(RendererBackend backend) {
         return new Builder(backend).build();
     }
@@ -74,11 +57,6 @@ public final class GpuCaps {
         return maxTextureSize;
     }
 
-    /**
-     * Instanced draws are the single highest-value capability on a translation layer: one call
-     * draws many chunks, and per-call overhead is the dominant cost. Without it the mod falls back
-     * to one draw per section, which still beats vanilla but gives up most of the gain.
-     */
     public boolean supportsInstancing() {
         return supportsInstancing;
     }
@@ -87,21 +65,10 @@ public final class GpuCaps {
         return supportsAnisotropic;
     }
 
-    /**
-     * Vanilla flips clip space to a zero-to-one depth range, which is an OpenGL 4.5 / ARB feature.
-     * Most translation layers do not implement it. When absent, the mod must emit clip-space
-     * matrices for the default minus-one-to-one range instead, or depth testing breaks in ways that
-     * look like z-fighting rather than like a crash.
-     */
     public boolean supportsClipControl() {
         return supportsClipControl;
     }
 
-    /**
-     * Persistent buffer mapping is unreliable across translation layers and is the usual cause of
-     * the "works on desktop, corrupted on phone" bug class. It is probed but disabled by default
-     * and only enabled on backends with a known-good record.
-     */
     public boolean supportsPersistentMapping() {
         return supportsPersistentMapping;
     }
@@ -114,15 +81,10 @@ public final class GpuCaps {
         return maxVertexAttribs;
     }
 
-    /** False until the probe has run against a live context. */
     public boolean isProbeComplete() {
         return probeComplete;
     }
 
-    /**
-     * Whether the vertex layout the mod wants fits. The packed format needs four attributes; a
-     * context reporting fewer cannot use it and must fall back to a wider vanilla-compatible layout.
-     */
     public boolean canUsePackedVertexFormat() {
         return maxVertexAttribs >= 4;
     }
@@ -143,7 +105,6 @@ public final class GpuCaps {
         return describe();
     }
 
-    /** Mutable collector used by the GL probe once a context exists. */
     public static final class Builder {
 
         private RendererBackend backend;

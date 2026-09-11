@@ -23,21 +23,6 @@ import net.fabricmc.loader.api.FabricLoader;
 
 import java.nio.file.Path;
 
-/**
- * Entry point for PojavXOptimizer.
- *
- * <p>made for pojavers by pojaver
- *
- * <p>The design rule that governs everything in this class: <b>nothing here may throw</b>. A
- * performance mod that takes the game down with it is worse than no mod, and on a phone the user has
- * no convenient way to read a stack trace. Every initialisation step is individually guarded, and a
- * step that fails disables its own module rather than aborting the mod.
- *
- * <p>The mod also deliberately depends on nothing but Fabric Loader. No Fabric API, no Sodium, no
- * configuration library, no jar-in-jar. Every dependency is another thing a user has to install
- * correctly and another source of version-mismatch crashes, and on mobile those failures look
- * identical to "the game won't start".
- */
 public final class PojavXOptimizer implements ClientModInitializer {
 
     private static PojavXOptimizer instance;
@@ -71,7 +56,7 @@ public final class PojavXOptimizer implements ClientModInitializer {
         try {
             this.configDir = FabricLoader.getInstance().getConfigDir();
         } catch (RuntimeException loaderUnavailable) {
-            // Fall back to the working directory; the mod should still function with defaults.
+
             this.configDir = Path.of("config");
             PJO.warn("Could not resolve the loader config directory; using ./config instead.",
                     loaderUnavailable);
@@ -111,10 +96,6 @@ public final class PojavXOptimizer implements ClientModInitializer {
         }
     }
 
-    /**
-     * Constructs each module independently. If one fails, the rest still come up, which keeps a
-     * single bad module from taking the whole mod offline.
-     */
     private void initModules() {
         this.thermalGovernor = new ThermalGovernor(config);
         this.framePacer = new FramePacer(config);
@@ -141,24 +122,16 @@ public final class PojavXOptimizer implements ClientModInitializer {
         }
     }
 
-    /** Saves settings; safe to call repeatedly and from any thread. */
     public void saveConfig() {
         if (config != null && configDir != null) {
             config.save(configDir);
         }
     }
 
-    // ---- accessors used by the mixins ------------------------------------
-
     public static PojavXOptimizer get() {
         return instance;
     }
 
-    /**
-     * True once initialisation has completed. Every mixin checks this before doing anything, so a
-     * mod that loads after us — or a partial initialisation — degrades to vanilla behaviour instead
-     * of dereferencing a null module.
-     */
     public static boolean isReady() {
         return instance != null && instance.ready;
     }
@@ -181,10 +154,6 @@ public final class PojavXOptimizer implements ClientModInitializer {
     public DebugHud debugHud() { return debugHud; }
     public Path configDir() { return configDir; }
 
-    /**
-     * Called once the GL context exists so capability probing can replace the conservative
-     * assumptions made at startup.
-     */
     public void onGlContextReady(String glVersion, String glRenderer, String glVendor,
                                  int maxTextureSize, boolean instancing, boolean clipControl,
                                  boolean compute) {
@@ -205,7 +174,6 @@ public final class PojavXOptimizer implements ClientModInitializer {
         PJO.info("GPU probe complete: {}", gpuCaps.describe());
     }
 
-    /** One-line status for the debug overlay and for support requests. */
     public String statusLine() {
         if (!ready) {
             return "PJO: not ready";

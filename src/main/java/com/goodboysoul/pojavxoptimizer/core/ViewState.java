@@ -1,22 +1,5 @@
 package com.goodboysoul.pojavxoptimizer.core;
 
-/**
- * The most recently observed camera state.
- *
- * <p>This exists as a plain class rather than as statics on a mixin because mixin classes do not
- * exist at runtime: their members are merged into the target class. A static declared on
- * {@code LevelRendererMixin} would end up living on {@code LevelRenderer}, which means it could not
- * be called as {@code LevelRendererMixin.something()} from anywhere.
- *
- * <p>The indirection is also what keeps the mixins trivial. {@code setupRender} receives the camera
- * as a parameter and is the one place it can be read in 1.21.1 without shadowing a private field;
- * everything else that needs the camera position reads it from here instead of injecting its own
- * hook.
- *
- * <p>Written on the render thread, read on the render thread. No synchronisation is needed, and the
- * values are plain doubles so a torn read is impossible in practice; a stale read by one frame is
- * harmless because every consumer treats this as a hint rather than as authoritative state.
- */
 public final class ViewState {
 
     private static double cameraX;
@@ -44,7 +27,6 @@ public final class ViewState {
         valid = true;
     }
 
-    /** False until {@code setupRender} has run at least once, i.e. before a world is drawn. */
     public static boolean isValid() {
         return valid;
     }
@@ -61,7 +43,6 @@ public final class ViewState {
 
     public static double lookZ() { return lookZ; }
 
-    /** Clears state on world change so a new world never inherits the previous camera. */
     public static void reset() {
         cameraX = 0.0;
         cameraY = 0.0;
