@@ -4,6 +4,7 @@ import com.goodboysoul.pojavxoptimizer.config.PjoConfig;
 import com.goodboysoul.pojavxoptimizer.core.PJO;
 import com.goodboysoul.pojavxoptimizer.gui.DebugHud;
 import com.goodboysoul.pojavxoptimizer.module.battery.FramePacer;
+import com.goodboysoul.pojavxoptimizer.module.battery.FrameRateLimiter;
 import com.goodboysoul.pojavxoptimizer.module.chunk.BuildBudget;
 import com.goodboysoul.pojavxoptimizer.module.chunk.ChunkPrioritizer;
 import com.goodboysoul.pojavxoptimizer.module.culling.EntityCullPolicy;
@@ -48,6 +49,7 @@ public final class PojavXOptimizer implements ClientModInitializer {
 
     private ThermalGovernor thermalGovernor;
     private FramePacer framePacer;
+    private FrameRateLimiter frameRateLimiter;
     private HeapGuard heapGuard;
     private BufferArena bufferArena;
     private ChunkPrioritizer chunkPrioritizer;
@@ -116,6 +118,7 @@ public final class PojavXOptimizer implements ClientModInitializer {
     private void initModules() {
         this.thermalGovernor = new ThermalGovernor(config);
         this.framePacer = new FramePacer(config);
+        this.frameRateLimiter = new FrameRateLimiter(config);
         this.chunkPrioritizer = new ChunkPrioritizer(config);
         this.buildBudget = new BuildBudget(config);
         this.visibilityBudget = new VisibilityBudget(config);
@@ -165,6 +168,7 @@ public final class PojavXOptimizer implements ClientModInitializer {
     public GpuCaps gpuCaps() { return gpuCaps; }
     public ThermalGovernor thermalGovernor() { return thermalGovernor; }
     public FramePacer framePacer() { return framePacer; }
+    public FrameRateLimiter frameRateLimiter() { return frameRateLimiter; }
     public HeapGuard heapGuard() { return heapGuard; }
     public BufferArena bufferArena() { return bufferArena; }
     public ChunkPrioritizer chunkPrioritizer() { return chunkPrioritizer; }

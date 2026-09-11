@@ -118,8 +118,12 @@ public abstract class MinecraftMixin {
         double camZ = ViewState.cameraZ();
 
         // A paused single-player world is already idle, so it does not need the idle detector.
-        mod.framePacer().update(camX, camY, camZ, 0.0f, 0.0f, guiOpen || self.isPaused(),
+        int cap = mod.framePacer().update(camX, camY, camZ, 0.0f, 0.0f, guiOpen || self.isPaused(),
                 mod.thermalGovernor().pressure());
+
+        // Without this write the cap is a number nobody reads and the game keeps rendering
+        // flat out. It only takes over while the player's own limit is set to unlimited.
+        mod.frameRateLimiter().apply(self.options, cap);
 
         mod.dynamicResolution().update(frameMs, targetFrameMs, mod.thermalGovernor().pressure());
 
