@@ -1,0 +1,22 @@
+{
+  "required": true,
+  "package": "dev.novaclient.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "MinecraftMixin",
+    "GuiMixin",
+    "EntityRenderDispatcherMixin",
+    "FogRendererMixin",
+    "ScreenEffectRendererMixin",
+    "ItemInHandRendererMixin",
+    "ScreenMixin",
+    "MinecraftAttackMixin",
+    "ItemEntityRendererMixin",
+    "PlayerMixin",
+    "LevelRendererMixin",
+    "ScreenshotMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

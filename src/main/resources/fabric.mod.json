@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "accessWidener": "novaclient.accesswidener",
+  "id": "novaclient",
+  "version": "${version}",
+  "name": "NovaClient",
+  "description": "A lightweight FPS client for Minecraft 1.21.1. Works alongside Sodium.",
+  "authors": ["goodboysoul"],
+  "contact": {
+    "homepage": "https://github.com/kaoakwkwkwkwkwkwkaoakakaakak-collab/Novaclient-official-",
+    "sources": "https://github.com/kaoakwkwkwkwkwkwkaoakakaakak-collab/Novaclient-official-",
+    "issues": "https://github.com/kaoakwkwkwkwkwkwkaoakakaakak-collab/Novaclient-official-/issues"
+  },
+  "license": "CC-BY-NC-ND-4.0",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["dev.novaclient.NovaClient"]
+  },
+  "mixins": ["novaclient.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.16.3",
+    "minecraft": "1.21.1",
+    "java": ">=21"
+  },
+  "custom": {
+    "novaclient": {
+      "toggleKey": "RIGHT_SHIFT",
+      "moduleCount": 71,
+      "tabs": 6
+    }
+  }
+}
